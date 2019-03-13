@@ -676,8 +676,9 @@ Even though the resulting program worked well, it was slow as only one question 
 \end{lstlisting}
 
 \myparagraph{Chatbot}
+The other main part of the back-end program is the Chatbot object instance. The initialisation of the chatbot can be seen in \cref{lst:chatbot}.
+
 \begin{lstlisting}[caption={\captionstyle{Initialisation of the Chatbot object.}}, label={lst:chatbot}]
-# initialise chatbot
 bot = ChatBot(
     "C++ bot",
     storage_adapter="chatterbot.storage.SQLStorageAdapter",
@@ -694,14 +695,96 @@ bot = ChatBot(
 )
 \end{lstlisting}
 
-\subsubsection{Front-end}
+The first argument passed to the constructor, the string "C++ bot", is the name of the chatbot. It can be useful when there are multiple chatbots created, however in this case there is only one chatbot instance. The second argument, \texttt{preprocessors} is a list of the preprocessors the chatbot should use when it receives user input. The \texttt{unescape\_html} preprocessor is included in chatterbot. It converts escaped HTML characters into unescaped HTMl characters. For instance, "\texttt{\&lt;b\&gt;}" is converted to the \texttt{<b>} tag. This preprocessor has to be used as the data collected from Stack Overflow includes HTML tags and some of them are escaped.
 
+The next argument passed is a list \texttt{logic\_adapters}. The adapters used in this case are a BestMatch adapter and a SpecificResponse adapter.
+
+The last argument is the \texttt{database\_uri}. An SQLite database is used and the value of the parameter is the name of the file where the database is stored.
+
+
+\subsubsection{Front-end}
+The front-end was implemented in Python with the Flask module.
+
+\myparagraph{Project structure}
+As suggested in the Flask documentation \cite{Flask:online}, the project was structured in the following way: 
+\begin{verbatim}
+Chatbot/
+|---requirements.txt
+|   
+|---chatbot/
+|   |---__init__.py
+|   |---constants.py
+|   |---crawler.py
+|   |---bot.py
+|   |   
+|   |---static/
+|   |   |---css/
+|   |   |   |---style.css
+|   |   |       
+|   |   |---js/
+|   |       |---chatbot.js
+|   |           
+|   |---templates/
+|           |---base.html
+|           |---chatbot.html
+|           
+|---tests/
+|---venv/    
+\end{verbatim}
+
+The root folder of the project is the \texttt{Chatbot/} directory. It contains the \texttt{chatbot/} directory in which the Python code for the back-end program is stored. The \texttt{static/} directory contains the static files used in the website - the CSS styles and the javascript code as well as any images that might be used. The \texttt{tests/} directory contains the unit tests for the application. Lastly, \texttt{venv} contains the Python \textit{virtual environment} used for the project. Structuring the project this way ensures that the different .... are separated and organised.
+
+\myparagraph{Application setup}
+The Flask documentation recommends organising the code in modules. For this reason, the \texttt{\_\_init\_\_.py} file is placed in the \texttt{chatbot/} directory. This tells the Python interpreter that chatbot is a module which can be imported in Python files. Additionally, the \texttt{\_\_init\_\_.py} file defines a method which initialises an instance of the \texttt{Flask} class. This method is known as the \textit{Application Factory} \cite{Flask:online}. The initialisation of the Flask app is ahieved in the following way:
+
+\begin{enumerate}
+    \item An instance of the Flask class is created.
+    \item The Flask instance is configured. A \texttt{SECRET\_KEY} variable is required by Flask. It is used to hash sensitive information in the website. During development, its value is set to the string "dev" so that debuggers can be used.
+    \item The pages of the Flask application are initialised. For this project, the code for creating the home page can be seen in \cref{lst:homepage}. On line 1, the address of the page is specified. The "/" indicates that this is the home page. If a Contact page were to be added, its location would be "/contact". Line 2 defines a Python function which will be called when this address is accesed. Line 3 uses the Flask method \texttt{render\_template()}. It requires the name of an HTML file which will be shown when this page is accessed. The HTML file is stored in the \texttt{templates/} directory. This method takes any number of other optional arguments. Every other variable passed to it will be passed to the template specified and its value can be used via the Jinja templating language. In this case, a 'title' variable is passed which specifies the title that will be shown in the page.
+    \item The last thing Flask requries is that the Application Factory returns the initialised and configured Flask object.
+    \item The website can be run using the default server that comes with Flask. To do this, the command \texttt{flask run} can be executed from a terminal. Flask uses environment variables to locate a project. The variable \texttt{FLASK\_APP} must be set before running the server. To run the server in debug mode, the variable \texttt{FLASK\_ENV} may be set to "development". 
+\end{enumerate}
+
+\begin{lstlisting}[caption={\captionstyle{Initialisation of the home page of the Flask application.}}, label={lst:homepage}]
+@app.route("/")
+def home():
+    return render_template("chatbot.html", title="Chatbot")
+\end{lstlisting}
+
+\myparagraph{Website design}
+The website consists of a single page which resembles a text messaging application. The main goal was to create a clean and simple interface which is easy to use and feels familiar. Messaging apps such as Facebook Messenger and WhatsApp were used as reference. The website interface is shown in \cref{fig:site-interface}.
+
+\begin{figure}[!htb]%
+    \centering
+    \includegraphics[width=1.0\columnwidth]{app-interface}%
+    \caption{\captionstyle{The interface of the website.}}%
+    \label{fig:site-interface}%
+\end{figure}
+
+The elements that can be seen on the figure were created using HTML and Jinja templates. A main template (\texttt{base.html}) contains the elements that exist on every page of the website - the page title and the window title. All the HTML code used to create a page is stored in - the <html>, <head>, and <body> tags. In its <head> tag all the css styles and javascript scripts are loaded. Additionally, the <title> tag is used with a value passed from Application Factory. The <body> tag only contains an HTML <h1> tag which has the value of the variable title passed from the Python code. The code used to achieve this can be seen in \cref{lst:jinjavar}. The code on line 1 checks if the variable \texttt{title} has a value. If it does, it is used on line 2 as a heading. There is no other content in the <body> tag, except for a Jinja block. It defines a place in the page where content can be inserted. This can be achieved by creating another template which extends the base template and implementing the block content in it.
+
+\begin{lstlisting}[caption={\captionstyle{Using a variable passed from Python in a Jinja template.}}, label={lst:jinjavar}]
+{% if title %}
+    <h1>{{ title }}</h1>
+{% endif %}
+\end{lstlisting}
+
+A specific template for the home page, \texttt{chatbot.html}, implements the elements specific to the chatbot page: the chatbox, the text field and the Submit button. It extends the \texttt{base.html} template. This means that all the code in the base template will be copied in the chatbot template. By defining a block with the same name as the block in the base template, the content of the chatbot page can be implemented.
+
+The styling of the website was achieved using CSS. The CSS framework \textit{Bootstrap 4} by Twitter was used to style the website and to ensure that it can be viewed on devices with different screen sizes with no issues. Bootstrap's responsive design allows for positioning elements in a grid of rows and columns. Each row can contain up to twelve columns. When the page is resized, the columns are re-ordered and their size is changed dynamically to fit the page. The font size and can also change dynamically so that it. Although Bootstrap does not require any specific setup or configuration, the Flask extension Bootstrap-Flask can be used to simplify... It creates Jinja macros such as \texttt{bootstrap.load\_css()}, \texttt{bootstrap.load\_js()}, etc.
+
+The chatbot page consists of three rows with one column per row. Custom CSS was written so that the different elements have appropriate size. The title is positioned at the top of the page and the text input box and the button are positioned at the bottom. The chatbox is in the center of the page and it occupies all the remaining free space. By default, Bootstrap uses rows with the same height. However, custom css was created to position the elements more precisely and to change their height. To ensure the responsive design still worked, the appropriate CSS units were used. Instead of giving elements a specific height, e.g. "20 pixels", relative units such as \texttt{\%} and \texttt{vh} were used.
+
+\subsubsection{Communication between the front-end and the back-end}
+The communication between the front-end and the back-end is required as the user input has to be sent to the back-end program for processing. When the input is processed, the resulting output has to be sent back to the front-end. This was achieved with \textit{Javascript}. 
+
+Javascript is a client-side programming language which runs inside web browsers. It can be used to dynamically change a website's content, store information and handle requests and responses. The \textit{JQuery} library was used as it provides a simple and portable way of modifying content dynamically. Event handling, 
 
 \subsubsection{Testing}
-To ensure that after changing the back-end the other parts of the application worked correctly, a testing strategy was created. 
+To ensure that after changing the back-end the other parts of the application worked correctly, a testing strategy was created. Unit tests were implemented with the Pytest python module. 
 
 \myparagraph{Code Coverage}
-TO DO
+
 
 \subsubsection{Continuous Integration \& Deployment}
 
