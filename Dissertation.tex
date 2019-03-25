@@ -14,16 +14,18 @@
 \usepackage{graphicx} % support the \includegraphics command and options
 \graphicspath{{./images/}}
 
+\usepackage[subfigure,titles]{tocloft}                  
 \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
 
 %%% PACKAGES
-\usepackage{booktabs} % for much better looking tables
+\usepackage{tabularx,dcolumn}
+\usepackage{longtable, booktabs, tabu} % for much better looking tables
 \usepackage{array} % for better arrays (eg matrices) in maths
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
 \usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
 \usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
 \usepackage[toc,page]{appendix}
-\usepackage[dvipsnames]{xcolor}
+\usepackage[dvipsnames,table,xcdraw]{xcolor}
 % break links on hyphens!
 \usepackage[hyphens]{url}
 % make citations clickable links, and change link colours to black
@@ -37,16 +39,75 @@
 \usepackage{amsfonts}
 \usepackage{enumitem}
 \usepackage{fancyvrb}
+\usepackage{titling}
+\usepackage[autostyle=false,style=american]{csquotes}
+\usepackage{titletoc}
+
+% fix quotation marks!
+\MakeOuterQuote{"}
+
+%  cite appendices
+\crefname{appsec}{Appendix}{Appendices}
+
+\makeatletter
+\renewenvironment{abstract}{%
+    \if@twocolumn
+      \section*{\abstractname}%
+    \else %% <- here I've removed \small
+      \begin{center}%
+        {\bfseries \Large\abstractname\vspace{\z@}}%  %% <- here I've added \Large
+      \end{center}%
+      \quotation
+    \fi}
+    {\if@twocolumn\else\endquotation\fi}
+\makeatother
+
+
+\makeatletter
+\newcommand\frontmatter{%
+    \cleardoublepage
+  %\@mainmatterfalse
+  \pagenumbering{roman}}
+
+\newcommand\mainmatter{%
+    \cleardoublepage
+ % \@mainmattertrue
+  \pagenumbering{arabic}}
+
+\newcommand\backmatter{%
+    \if@openright
+    \cleardoublepage
+    \else
+    \clearpage
+    \fi
+    % \@mainmatterfalse
+}
+\makeatother
+
+% \titlecontents{chapter}[2.3em]{}{\contentslabel{2.3em}}{}{\titlerule*[0.25pc]{.}\contentspage}[\addvspace{.5pc}] 
+% \titlecontents{figure}[2.3em]{}{\contentslabel{2.3em}}{}{\titlerule*[0.25pc]{.}\contentspage}[\addvspace{.5pc}] 
+% \titlecontents{table}[2.3em]{}{\contentslabel{2.3em}}{}{\titlerule*[0.25pc]{.}\contentspage}[\addvspace{.5pc}] 
+% \contentsuse{lstlisting}{lol}
+% \titlecontents{lstlisting}[2.3em]{}{\contentslabel{2.3em}}{}{\titlerule*[0.25pc]{.}\contentspage}[\addvspace{.5pc}] 
+
+\newcolumntype{d}[1]{D.,{#1}}  
+\newcommand\mc[1]{\multicolumn{1}{@{}c@{}}{#1}} % handy shortcut macro
 
 % set itemize level 2 symbol
 \setlist[itemize,2]{label=$\diamond$}
 
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
 % configure listings
 \lstset{
     style=Matlab-editor,
-    basicstyle=\mlttfamily\small,
+    basicstyle=\small\mlttfamily,
+	numbers=left,
+	numbersep=5pt,
+	xleftmargin=2em,
+	frame=tb,
+	framexleftmargin=20pt,
     language=Python,
-    numbers=left,
     showspaces=false,
     showstringspaces=false,
     numberstyle=\scriptsize,
@@ -55,17 +116,21 @@
     keywordstyle=[2]\ttfamily \color{blue},
     stringstyle=\color{ForestGreen}\ttfamily,
     commentstyle=\color{red}\ttfamily,
-    autogobble=true
+    autogobble=true,
+    ndkeywords={startswith, random}
 }
 
 \lstdefinelanguage{JavaScript}{
     style=Matlab-editor,
-    basicstyle=\mlttfamily\small,
-    numbers=left,
+    basicstyle=\small\mlttfamily,
+	numbers=left,
+	numbersep=5pt,
+	xleftmargin=2em,
+	frame=tb,
+	framexleftmargin=20pt,
     showspaces=false,
     showstringspaces=false,
     numberstyle=\scriptsize,
-    % captionpos=b,
     keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, let, const},
     keywordstyle=\color{blue}\bfseries,
     ndkeywords={class, export, boolean, throw, implements, import, this},
@@ -81,6 +146,9 @@
     autogobble=true
 }
 
+\DeclareCaptionFormat{mylst}{\hrule#1#2#3}
+\captionsetup[lstlisting]{format=mylst,labelfont=bf,singlelinecheck=off,labelsep=colon}
+
 \crefname{lstlisting}{Listing}{listings}
 \Crefname{lstlisting}{Listing}{Listings}
 
@@ -94,26 +162,44 @@
 \pagestyle{fancyplain}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0.5pt}
-\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt} % no need for the footer line
 \setlength{\headheight}{15pt}
 \fancyhead[L]{Svetlozar Georgiev - 40203970}
 \fancyhead[R]{SOC10101 Honours Project}
 \fancyfoot[L]{}
-\fancyfoot[C]{\thepage}
+\fancyfoot[C]{}
+\fancyfoot[R]{\thepage}
+
+\newcommand{\nopagenum} {
+    \fancyfoot[R]{}
+}
+
+\newcommand{\pagenum}{
+    \fancyfoot[R]{\thepage}
+}
+
+\setlength{\tabcolsep}{10pt}
+
 
 %set better section layout
-\makeatletter
-\renewcommand\subsection{\@startsection {subsection}{1}{2mm} % name, level, indent
-                                        {3pt plus 2pt minus 1pt} % before skip
-                                        {3pt plus 0pt} % after skip
-                                        {\normalfont\bfseries}}
-\makeatother
-\makeatletter
-\renewcommand\section{\@startsection {section}{1}{0mm} % name, level, indent
-                                     {4pt plus 2pt minus 1pt} % before skip
-                                     {4pt plus 0pt} % after skip
-                                     {\bfseries}}
-\makeatother
+% \makeatletter
+% \renewcommand\subsection{\@startsection {subsection}{1}{2mm} % name, level, indent
+%                                         {3pt plus 2pt minus 1pt} % before skip
+%                                         {3pt plus 0pt} % after skip
+%                                         {\normalfont\bfseries}}
+% \makeatother
+% \makeatletter
+% \renewcommand\section{\@startsection {section}{1}{0mm} % name, level, indent
+%                                      {4pt plus 2pt minus 1pt} % before skip
+%                                      {4pt plus 0pt} % after skip
+%                                      {\Large\bfseries}}
+% \makeatother
+% \makeatletter
+% \renewcommand\subsubsection{\@startsection {section}{1}{3mm} % name, level, indent
+%                                      {5pt plus 2pt minus 1pt} % before skip
+%                                      {5pt plus 0pt} % after skip
+%                                      {\normalfont\bfseries}}
+% \makeatother
 
 % macro for adding figures more easily
 \newcommand{\figuremacro}[5]{
@@ -130,8 +216,21 @@
     \small{#1}
 }
 
+% footnote in footer
+\newcommand{\fancyfootnotetext}[2]{%
+    \fancypagestyle{dingens}{%
+        \fancyfoot[LO,RE]{\parbox{12cm}{\footnotemark[#1]\footnotesize #2}}%
+    }%
+    \thispagestyle{dingens}%
+}
+
+% tabular X with centering
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
 %this starts the document
 \begin{document}
+ % Start page counting in roman numerals
+ \frontmatter
 
 %you can import other documents into your main one, these layout the Title and Declarations on its own page.
 %you might need to change these to \ if your on Microsoft Windows.
@@ -143,19 +242,25 @@
 
 %LaTeX let you define the abstract separately so it wont get sucked into the main document.
 \begin{abstract}
+    The abstract.
 \end{abstract}
 \pagebreak
 
 \tableofcontents % is generated for you
+\addtocontents{toc}{\vspace*{-1ex}}%
 \newpage
 
 \listoftables
 % generated in same way as figures
 \newpage
 
+
 \listoffigures
 %you may have captions such as equations, listings etc they should all appear as required
 %these are done for you as long as you use \begin{figure}[placement settings] .. bla bla ... \end{figure}
+\newpage
+
+\lstlistoflistings
 \newpage
 
 \section*{Acknowledgements}
@@ -164,22 +269,21 @@
 	I would like to thank...
 \newpage
 
+% page numbering should really start here...
+% \pagestyle{fancyplain}
+% \pagenumbering{arabic}
+
+ % Start regular page counting at page 1
+ \mainmatter
+
 \section{Introduction}
-The aim of this report is to describe the research, implementation and evaluation of a \textit{Smart Assistant} (sometimes also referred to as a \textit{chatbot}) utilising \textit{Artificial Intelligence}.
-
-Smart Assistants have gained popularity in the recent years with the introduction of smartphones. After the creation of \textit{Siri} by Apple, Google, Amazon and Microsoft followed with their own assistants. These assistants are constantly developed and improved, gaining new features to make people's lives easier...
-
-The main features of the software will be:
-\begin{itemize}
-    \item The ability to communicate with users via social media.
-    \item The ability to answer fact-based question by searching the Internet.
-    \item The ability to set reminders.
-    \item The ability to chat with the user.
-    \item The ability to learn from past conversations by utilising Machine Learning techniques.
-\end{itemize}
+\subsection{Motivation}
+\subsection{Aim and Objectives}
+\subsection{Background}
+\subsection{Structure}
 
 \newpage
-\section{Literature review}
+\section{Literature Review}
 This chapter discusses the underlying techniques and methodologies...
 
 \subsection{Chatbots}
@@ -188,20 +292,20 @@ The term \textit{ChatterBot} was coined by Michael Mauldin in 1994 \cite{Mauldin
 \myparagraph{Malicious use}
 Chatbots can be used for malicious purposes. Generally,
 
-\subsubsection{The Turing test}
+\subsubsection{The Turing Test}
 The idea of intelligent computers was first introduced by Alan Turing in his paper \textit{Computing Machinery and Intelligence} \cite{Turing1950}. Among other ideas, he describes a method of judging whether a machine is able to exhibit intelligent behaviour similar to that of a human: \textit{the Turing test}. For a machine to pass the Turing test, it is required to generate human-like responses, so that a human evaluator would not be able to tell that they were generated by a machine. The evaluator would interrogate a human respondent and a computer respondent within a specific subject area. It is required that all participants are separated from one another. Additionally, the means of communication should be text-based, so that the machine is not judged on its ability to generate human-like speech. Based on both respondents' answers, the evaluator would then guess which one of the two is the machine. The test would be repeated several times. If the evaluator makes the correct assumption half of the times or less, the computer can be considered to have exhibited intelligence.
 
 Therefore, it can be said that Turing's ideas were a significant influence on the development of AI and Chatbots specifically.
 
-\myparagraph{The Chinese room argument}
-In the 1980 paper \textit{Minds, Brains and Programs} \cite{Searle1980}, John Searle argues that the Turing test cannot be used to determine whether a machine is truly intelligent. He proposes the following thought experiment: suppose that a computer which understands Chinese has successfully been constructed. Its input are Chinese characters, and by following a computer program instructions, it can output other Chinese characters. The computer can pass the Turing test and even convince a Chinese speaker that it is a human Chinese speaker itself. The questions Searle asks are: \textit{"Does the machine \textbf{really} understand Chinese?"} and \textit{"Is the machine \textbf{simulating} the ability to understand Chinese?"} \cite[p.~2]{Searle1980}. Searle describes the former as \textit{weak AI} and the latter as \textit{strong AI}. Searle then claims that if he were in a closed room and had a book with the English version of the computer program, he could receive Chinese characters through a slot in the door, process them according to the instructions the program follows, and output Chinese characters. If the program passes the Turing test doing the same, he should be able to pass it as well. However, he, similar to the computer, would not be able to understand the conversation as he doesn't speak Chinese. He argues that without \textit{understanding}, what the machine is doing cannot be described as \textit{thinking}. Since it does not think, it does not have a \textit{mind}. Therefore, he concludes that \textit{strong AI} is false.
+\myparagraph{The Chinese Room Argument}
+In the 1980 paper \textit{Minds, Brains and Programs} \cite{Searle1980}, John Searle argues that the Turing test cannot be used to determine whether a machine is truly intelligent. He proposes the following thought experiment: suppose that a computer which understands Chinese has successfully been constructed. Its input are Chinese characters, and by following a computer program instructions, it can output other Chinese characters. The computer can pass the Turing test and even convince a Chinese speaker that it is a human Chinese speaker itself. The questions Searle asks are: \enquote{Does the machine \textbf{really} understand Chinese?} and \enquote{Is the machine \textbf{simulating} the ability to understand Chinese?} \cite[p.~2]{Searle1980}. Searle describes the former as \textit{weak AI} and the latter as \textit{strong AI}. Searle then claims that if he were in a closed room and had a book with the English version of the computer program, he could receive Chinese characters through a slot in the door, process them according to the instructions the program follows, and output Chinese characters. If the program passes the Turing test doing the same, he should be able to pass it as well. However, he, similar to the computer, would not be able to understand the conversation as he doesn't speak Chinese. He argues that without \textit{understanding}, what the machine is doing cannot be described as \textit{thinking}. Since it does not think, it does not have a \textit{mind}. Therefore, he concludes that \textit{strong AI} is false.
 
 \myparagraph{The Loebner Prize}
 \textit{The Loebner Prize} is an annual competition where computer programs are judged on their ability to behave like a human. The format is a standard Turing test. The competition started in 1990 and was created by Hugh Loebner. Since 2014, it has been organised by the AISB (or SSAISB, Society for the Study of Artificial Intelligence and the Simulation of Behaviour).
 
-However, the competition has been widely criticised. For example, \cite{Floridi2009} describes the 2008 competition where judges were asking unsuitable questions ("yes" or "no" questions) which couldn't effectively show whether a machine can "think". Additionally, conversations between the chatbots and the judges were too short - only 2.5 minutes. The format of the competition encouraged contestants create bots which paraphrase and repeat the question when they couldn't answer.
+However, the competition has been widely criticised. For example, \cite{Floridi2009} describes the 2008 competition where judges were asking unsuitable questions (\enquote{yes} or \enquote{no} questions) which couldn't effectively show whether a machine can \enquote{think}. Additionally, conversations between the chatbots and the judges were too short - only 2.5 minutes. The format of the competition encouraged contestants create bots which paraphrase and repeat the question when they couldn't answer.
 
-\subsubsection{Evolution of chatbots}
+\subsubsection{Evolution of Chatbots}
 \myparagraph{ELIZA}
 In 1966, Joseph Weizenbaum created the first public chatbot, \textit{ELIZA}, at MIT. It was the first widely recognised program able to pass the Turing test. The program allows its users to chat with a Rogerian psychologist. ELIZA employed a pattern-matching method to simulate a conversation. The input is paraphrased, matched to a list of known phrases, and an answer is selected from a list of known answers to these phrases. ELIZA had no understanding of context and could only answer separate questions, making her unable to conduct a meaningful conversation. Additionally, ELIZA was programmed to answer with generic responses when there is no known answer to a specific phrase.
 The reason ELIZA was created was to show how superficial a conversation between a computer and human is, however it became widely popular because it managed to convince a lot of people that they were talking to a real person.
@@ -216,8 +320,7 @@ The reason ELIZA was created was to show how superficial a conversation between 
 ...
 
 \myparagraph{A.L.I.C.E.}
-A.L.I.C.E. (\textit{Artificial Linguistic Internet Computer Entity}) was developed by Dr. Richard Wallace in 1995. It was inspired by ELIZA and won the Loebner Prize in 2000, 2001 and 2004 \cite[p.~182]{Wallace2009}. It utilises AIML (\textit{Artificial Intelligence Markup Language}) which is based on XML. The model of learning of A.L.I.C.E. is called supervised learning as a person monitors the conversations of the chatbot and creates new AIML content to make the responses more appropriate, accurate and believable \cite[p.~182]{Wallace2009}. The "brain" of A.L.I.C.E. consists of elements called categories. Each category combines a question and an answer, or stimulus and response, called the "pattern" and "template" respectively \cite[p.~182]{Wallace2009}.  The AIML software stores the patterns in a
-tree structure managed by an object called the \textit{graphmaster}, implementing a pattern storage and matching algorithm \cite[p.~182]{Wallace2009}. The graphmaster is well-optimised and allows for efficient speed of pattern matching.
+A.L.I.C.E. (\textit{Artificial Linguistic Internet Computer Entity}) was developed by Dr. Richard Wallace in 1995. It was inspired by ELIZA and won the Loebner Prize in 2000, 2001 and 2004 \cite[p.~182]{Wallace2009}. It utilises AIML (\textit{Artificial Intelligence Markup Language}) which is based on XML. The model of learning of A.L.I.C.E. is called supervised learning as a person monitors the conversations of the chatbot and creates new AIML content to make the responses more appropriate, accurate and believable \cite[p.~182]{Wallace2009}. The "brain" of A.L.I.C.E. consists of elements called categories. Each category combines a question and an answer, or stimulus and response, called the \enquote{pattern} and \enquote{template} respectively \cite[p.~182]{Wallace2009}. The AIML software stores the patterns in a tree structure managed by an object called the \textit{graphmaster}, implementing a pattern storage and matching algorithm \cite[p.~182]{Wallace2009}. The graphmaster is well-optimised and allows for efficient speed of pattern matching.
 
 \myparagraph{SmarterChild}
 \textit{SmarterChild} was initially launched in 2001. It can answer fact-based question such as \textit{What is the population of Indonesia?} or more personalised questions such as \textit{What movies are playing near me tonight?} \cite{SmarterChild:online}
@@ -225,15 +328,15 @@ tree structure managed by an object called the \textit{graphmaster}, implementin
 \myparagraph{IBM Watson}
 \textit{IBM Watson} was developed in 2006 specifically to compete with the champions of the game \textit{Jeopardy!} \cite{futurism:online}. It won the competition in 2011. After that, IBM Watson became a public service for building chatbots for various domains which can process large amounts of data. This is called \textit{Cognitive computing}, claiming to use the same techniques as humans for understanding data and reasoning.
 
-\myparagraph{Smart assistants}
+\myparagraph{Smart Assistants}
 Apple launched \textit{Siri} in 2010 as an intelligent virtual assistant. It paved the way for other similar assistant: \textit{Google Now}(2012), \textit{Microsoft Cortana} (2015), and \textit{Amazon Alexa} (2015). All of these assistant are able to answer fact-based questions by performing an online search, set reminder and alarms, make calls, send text messages, etc.
 No implementation details are known about these assistants, since they are closed-source and commercial.
 
 \myparagraph{Tay}
 \textit{Microsoft Tay} was launched in 2016 \cite{Taytweet55:online} on Twitter as a chatbot Twitter users could send direct messages to or tweet. It was designed to mimic the language patterns of a 19-year-old American girl, and to learn from interacting with human users of Twitter and get progressively smarter \cite{Microsof8:online}. However, twitter users began tweeting Tay inappropriate messages and the chatbot began mimicking the behaviour and answering with politically incorrect phrases itself \cite{Microsof8:online}. Soon after, Microsoft were forced to take the bot offline and delete some of its inappropriate tweets.
 
-\subsection{Artificial intelligence}
-The Oxford dictionary [citation maybe?] defines \textit{intelligence} as "the ability to acquire and apply knowledge and skills"...
+\subsection{Artificial Intelligence}
+The Oxford dictionary [citation maybe?] defines \textit{intelligence} as \enquote{the ability to acquire and apply knowledge and skills}...
 
 \textit{Artificial Intelligence} (AI) is a multidisciplinary field whose goal is to automate activities that presently require human intelligence \cite{williams1983brief}. \cite{Poole:1997:CIL:275594} define AI as the study of the design of \textit{intelligent agents} (or \textit{rational agents}). Such agents receive percepts from the environment and perform actions, i.e. they implement a function that maps percept sequences to actions \cite{RusselStuart}. The term \textit{Artificial Intelligence} is also used to describe a property of machines or programs: the intelligence that the system demonstrates.
 
@@ -252,7 +355,7 @@ The ultimate goal of AI is to understand the principles that make intelligent be
 
 Several subfields of AI exist. The focus in this chapter will be on \textit{Natural Language Processing (NLP)} and \textit{Machine Learning} as they are relevant to the project.
 
-\subsection{Natural language processing}
+\subsection{Natural Language Processing}
 \textit{Natural language processing} is an area where AI, linguistics and Computer Science intersect. NLP focuses on making computers understand statements and words written in human language \cite{Khurana2017}. An NLP system should be able to determine the structure of text in order to answer questions about meaning or semantics of the written language \cite{Martinez2010}.
 
 NLP is a collective term referring to automatic computational processing of human languages. This includes both algorithms that take human-produced text as input, and algorithms that produce natural looking text as outputs. The need for such algorithms
@@ -274,7 +377,7 @@ NLP consists of the following areas:
 
 The main techniques of understanding natural language are \textit{Syntactic Analysis} and \textit{Semantic Analysis}. The term \textit{syntax} refers to refers to the grammatical structure of the text whereas the term \textit{semantics} refers to the meaning that is conveyed by it. However, problems arise due to the fact that a sentence that is syntactically correct is not always semantically correct.
 
-\subsubsection{Syntactic analysis}
+\subsubsection{Syntactic Analysis}
 \textit{Syntactic Analysis}, also named Syntax Analysis or Parsing is the process of analysing natural language conforming to the rules of a formal grammar. Grammatical rules are applied to categories and groups of words, not individual words. Syntactic Analysis assigns a semantic structure to text.
 
 \subsubsection{Semantic Analysis}
@@ -283,7 +386,7 @@ For humans, understanding what someone has said is an unconscious process that r
 
 Semantic Analysis can be defined as \textit{the process of understanding the meaning and interpretation of words, signs, and sentence structure}. This enables computers partly to understand natural language the way humans do, involving meaning and context.
 
-\subsubsection{Techniques to understand text}
+\subsubsection{Techniques to Understand Text}
 The first step to implementing NLP is to parse the sentences into grammatical structures. However, parsing and understanding a natural language from an unbounded domain has proven extremely difficult as because of the complexity of natural languages, word ambiguity, and rules of grammar \cite{Martinez2010}.
 
 \myparagraph{Stemming}
@@ -294,13 +397,13 @@ Stemming can greatly improve the performance of a system as only the stems of wo
 Stemming is mostly beneficial, but there are ambiguous cases in which stemming is questionable. For example, a user is probably not likely to be looking for “Window” when entering the query term “Windows” (house part vs. operating system). Other examples
 of poor inflectional stemming are Doors/Door (music band vs. house part), and Utilities/Utility (energy supply vs. usefulness).
 
-\myparagraph{Part-of-speech tagging}
+\myparagraph{Part-of-speech Tagging}
 \textit{Part-of-speech tagging} (also called \textit{grammatical tagging} or \textit{word-category disambiguation}) refers to assigning parts of speech to each word in a piece of text. Parts of speech include \textit{nouns, verbs, adverbs, adjectives, pronouns, conjunction} and their sub-categories. A variety of techniques exist: statistical, memory-based, rule-based, etc.
 
-\myparagraph{Word-sense disambiguation}
+\myparagraph{Word-sense Disambiguation}
 Problems arise because words can have different meanings or senses based on the context, domain of discourse, etc. This is know as \textit{polysemy}. The goal of \textit{disambiguation} is to decide which of the meanings of a word should be attached to a specific use of the word. The methods to achieve can be categorised as \textit{supervised}, \textit{unsupervised} and \textit{dictionary-based}.
 
-\subsection{Machine learning}
+\subsection{Machine Learning}
 \textit{Machine Learning} is the science of getting computers to learn and act like humans do, and improve their learning over time in autonomous fashion, by feeding them data and information in the form of observations and real-world interactions [ reference here]. Traditionally, algorithms are sets of explicitly programmed instructions used by computers to solve a specific problem. Machine learning algorithms, however, allow computers to be trained on data inputs and use statistical data analysis in order to output values which fall within a specific range. Because of this, machine learning facilitates computers in building models from sample data in order to automate decision-making processes based on data inputs.
 
 The most widely adopted Machine Learning methods are:
@@ -311,7 +414,7 @@ The most widely adopted Machine Learning methods are:
     \item \textit{Reinforcement learning} - the system attempts to maximize a reward based on its input data.
 \end{itemize}
 
-\subsubsection{Supervised learning}
+\subsubsection{Supervised Learning}
 In supervised learning, the computer is provided with example inputs that are labelled with their desired outputs. The purpose of this method is for the algorithm to be able to “learn” by comparing its actual output with the “taught” outputs to find errors, and modify the model accordingly. Supervised learning therefore uses patterns to predict label values on additional unlabelled data. A common use case of supervised learning is to use historical data to predict statistically likely future events.
 
 \myparagraph{\textit{Classification}}
@@ -343,7 +446,7 @@ with continuous numeric outputs \cite{Kononenko2007}.
     \item \textit{Generalised linear models}
 \end{itemize}
 
-\subsubsection{Unsupervised learning}
+\subsubsection{Unsupervised Learning}
 In unsupervised learning, data is unlabelled, so the learning algorithm is left to find commonalities among its input data. As unlabelled data are more abundant than labelled data, machine learning methods that facilitate unsupervised learning are particularly useful.
 
 Without being given a specific “correct” answer, unsupervised learning methods can analyse complex data that is more expansive and seemingly unrelated in order to organise it in potentially meaningful ways. Unsupervised learning is often used for anomaly detection including for fraudulent credit card purchases, and systems that recommend what products to buy next.
@@ -357,7 +460,7 @@ Unsupervised learning methods can be categorised as:
     For instance, some data points may be completely meaningless in explaining the desired target variable. As such, we it may be preferred to drop them from the analysis. Moreover, it is often that two data points may be highly correlated with each other; therefore by merging them into a single data point, too much information won't be lost.
     \item \textit{Anomaly detection} - Anomaly detection is a technique used to identify unusual patterns that do not conform to expected behaviour, called \textit{outliers}. Anomalies can be broadly categorized as:
 
-    \textbf{Point anomalies:} A single instance of data is anomalous if it's too far off from the rest. Use case: Detecting credit card fraud based on "amount spent."
+    \textbf{Point anomalies:} A single instance of data is anomalous if it's too far off from the rest. Use case: Detecting credit card fraud based on \enquote{amount spent}.
 
     \textbf{Contextual anomalies:} The abnormality is context specific. This type of anomaly is common in time-series data. Use case: Spending \$100 on food every day during the holiday season is normal, but may be odd otherwise.
 
@@ -369,12 +472,12 @@ Unsupervised learning methods can be categorised as:
     \item \textit{Association rule-mining} - Association rule mining is primarily focussed on finding frequent co-occurring associations among a collection of items. It is sometimes referred to as \textit{Market Basket Analysis}, since that was the original application area of association mining. The goal is to find associations of items that occur together more often than it would be expected from a random sampling of all possibilities.
 \end{itemize}
 
-\subsubsection{Semi-supervised learning}
+\subsubsection{Semi-supervised Learning}
 \textit{Semi-supervised learning} methods combine a lot of unlabelled data and a small amount of labelled and pre-annotated data. The possible techniques that can be used are \textit{graph-based methods}, \textit{generative methods}, and \textit{heuristic-based methods}.
 A simple approach would be building a supervised model based on labelled data, which is limited, and
 then applying the same to large amounts of unlabelled data to get more labelled samples, train the model on them and repeat the process. Another approach would be to use unsupervised algorithms to cluster similar data samples, use human-in-the-loop efforts to manually annotate or label these groups, and then use a combination of this information in the future. This approach is used in many image tagging systems.
 
-\subsubsection{Reinforcement learning}
+\subsubsection{Reinforcement Learning}
 \textit{Reinforcement Learning} is a type of machine learning technique that enables an agent to learn in an interactive environment by trial and error using feedback from its own actions and experiences.
 
 Typically the agent starts with a set of strategies or policies for interacting with the environment. On observing the environment, it takes a particular action based on a rule or policy and by observing the current state of the environment. Based on the action, the agent gets a reward, which could be beneficial or detrimental in the form of a penalty. It updates its current policies and strategies if needed. This iterative process continues until it learns enough about its environment to get the desired rewards.
@@ -382,8 +485,8 @@ Typically the agent starts with a set of strategies or policies for interacting 
 As compared to unsupervised learning, reinforcement learning is different in terms of goals. While the goal in unsupervised learning is to find similarities and differences between data points, in reinforcement learning the goal is to find a suitable action model that would maximize the total cumulative reward of the agent.
 
 \newpage
-\section{Technology review}
-\subsection{Chatbot library}
+\section{Technology Review}
+\subsection{Chatbot Library}
 Numerous NLTK libraries exist implemented in most major programming languages. Even though they can be used to develop a chatbot successfully, the amount of work required to achieve that would be substantial and outside the scope of this project. For this reason, off-the-shelve libraries which are made specifically for chatbot development were investigated. Unfortunately, few such libraries exist. The results of the investigation were the following frameworks: BotMan, Chatterbot and several online tools for chatbot creation.
 
 \myparagraph{BotMan}
@@ -424,12 +527,12 @@ Chatterbot provides a \textit{ChatBot} class. A ChatBot object takes several par
 \end{itemize}
 
 \subsubsection{Preprocessors}
-The ChatBot instance can take a list of functions in its constructor to be used as preprocessors. Preprocessors can modify the input sent by the user before it is passed to the logic adapters. This is necessary due to the fact that the logic adapters are more likely to perform better if they are given "clean" input. For example, if the input contains a lot of whitespaces or non-alphanumerical characters, it might be beneficial to remove them. Chatterbot has several preprocessors, however, custom functions can be created and used as preprocessors.
+The ChatBot instance can take a list of functions in its constructor to be used as preprocessors. Preprocessors can modify the input sent by the user before it is passed to the logic adapters. This is necessary due to the fact that the logic adapters are more likely to perform better if they are given clean input. For example, if the input contains a lot of whitespaces or non-alphanumerical characters, it might be beneficial to remove them. Chatterbot has several preprocessors, however, custom functions can be created and used as preprocessors.
 
 \subsubsection{Logic Adapters}
 \textit{Logic adapters} are used to select an appropriate response to a question entered by the user. More than one logic adapter may be used as different types of input may require different processing. For example, Chatterbot by default uses the \textit{BestMatch} logic adapter. However, this adapter is only useful when the question asked has a specific response. If the user asked for the current time, the BestMatch adapter would be unable to answer as there is no specific answer to this question, i.e. the answer changes depending on when the user asks the question. For this reason, a \textit{Time} logic adapter can be created and added to the list of adapters used (Chatterbot has this adapter implemented by default). To help decide which adapter to use if more than one are provided, a custom logic adapter must inherit from the base class \texttt{LogicAdapter} and must implement the method \texttt{can\_process()}. This method is called before the logic adapters generate a response and the user input is passed to it. It must then return True or False based on whether the adapter should process this input or not. \cref{lst:canprocess} shows an example implementation of the \texttt{can\_process} method.
 
-\begin{lstlisting}[caption={\small{\textit{Example implementation of the can\_process method. Adapted from \cite{Chatterbot:online}}}}, label={lst:canprocess}]
+\begin{lstlisting}[caption={\captionstyle{Example implementation of the \texttt{can\_process()} method. Adapted from \cite{Chatterbot:online}.}}, label={lst:canprocess}]
     def can_process(self, statement):
         # If the statements starts with
         # the string 'Hey John',
@@ -442,11 +545,11 @@ The ChatBot instance can take a list of functions in its constructor to be used 
             return False
 \end{lstlisting}
 
-This tells the adapter to only process user input which contains the string "Hey John" (John could be the name of the chatbot) in its beginning.
+This tells the adapter to only process user input which contains the string \enquote{Hey John} (John could be the name of the chatbot) in its beginning.
 
 Another requirement is that custom logic adapters implement the \texttt{process()} method. It takes the input statement as a parameter. Additional response selection parameters can be added if required by the application. An example implementation can be seen in \cref{lst:process}.
 
-\begin{lstlisting}[caption={\small{\textit{Example implementation of the process() method. Adapted from \cite{Chatterbot:online}}}}, label={lst:process}]
+\begin{lstlisting}[caption={\captionstyle{Example implementation of the process() method. Adapted from \cite{Chatterbot:online}}}, label={lst:process}]
     def process(self, input_statement, additional_response_selection_parameters):
         import random
 
@@ -554,7 +657,7 @@ According to [ref needed] the most used languages in the field of AI are:
     \item C++
 \end{itemize}
 
-While each of these languages could be a viable option, there seems to be an agreement that \textit{Python} is the most popular choice.  The reason for this is that Python has a very large number of libraries. Furthermore, it is one of the most popular languages for AI-related programming. Libraries like \textit{nltk, numpy, pytorch, tensorflow}, etc. are widely adopted and actively developed to allow programmers to utilise the latest findings in AI research. Additionally, Python is known to greatly reduce development time as it provides a lot of "syntactic sugar" and automatic garbage collection. In traditional programming languages such as \textit{C++}, etc. manual memory management is an issue for new programmers and security and performance issues might occur when it is not implemented correctly. 
+While each of these languages could be a viable option, there seems to be an agreement that \textit{Python} is the most popular choice.  The reason for this is that Python has a very large number of libraries. Furthermore, it is one of the most popular languages for AI-related programming. Libraries like \textit{nltk, numpy, pytorch, tensorflow}, etc. are widely adopted and actively developed to allow programmers to utilise the latest findings in AI research. Additionally, Python is known to greatly reduce development time as it provides a lot of \enquote{syntactic sugar} and automatic garbage collection. In traditional programming languages such as \textit{C++}, etc. manual memory management is an issue for new programmers and security and performance issues might occur when it is not implemented correctly. 
 
 Python is a weakly-typed language, which means that variable types are deduced by the python interpreter. For this reason, developers do not have to specify the type of variable they are declaring. However, this could lead to problems as the programmer has to remember what type of data each variable is storing and has to be careful not to assign a different type of value to it as that would cause errors. Furthermore, Python is a high-level language, meaning that it provides more layers of abstraction. This results in the writing of less code to solve a specific problems. This is even more true when libraries (also referred to as \textit{modules}) are taken into account. Python has an enormous selection of modules - 169515 according to the official python package repository \cite{PyPI:online}. Additionally, Python is a multi paradigm language, i.e. it supports object-oriented programming, functional programming, imperative programming and procedural programming. Lastly, it is a cross platform language, being able to run on most major operating systems.
 
@@ -563,7 +666,7 @@ Similarly to other programming languages, Python does have disadvantages. The ma
 \subsection{Flask}
 The decision to create a website for the front-end of the project instead of a desktop or mobile application was made. This allows the application to be used from any device, desktop or mobile. 
 
-Flask is a microframework for Python used for website development. It is called a "microframework" as it aims to only include the core functionality required to create a website. This means developers are not forced to use a specific technology chosen for them by the Flask developers. Instead, many extensions exist which provide specific functionality. For instance, by default, Flask does not include any database....
+Flask is a microframework for Python used for website development. It is called a microframework as it aims to only include the core functionality required to create a website. This means developers are not forced to use a specific technology chosen for them by the Flask developers. Instead, many extensions exist which provide specific functionality. For instance, by default, Flask does not include any database....
 
 Flask uses several python libraries to achieve its functionality. A description of each one is provided below:
 
@@ -577,7 +680,7 @@ The goal was to implement a website which could be used from any device which ca
 Pytest is a unit test framework for Python...
 
 \newpage
-\section{Implementation}
+\section{Implementation}\label{sec:impl}
 \subsection{Version control}
 The first decision made when starting to implement the application was to use \textit{Version Control}. The version control system used was \textit{Git} and the code was hosted in a \textit{GitHub} repository. The reason for this was personal preference and previous experience with these technologies. 
 
@@ -592,14 +695,71 @@ Another feature of Git and Github used was \textit{branches}. Branches allow for
 
 Using branching proved to be beneficial as... 
 
+\subsection{Testing}
+Since the application consisted of many different components communicating with each other, problems were often encountered during the development process. For example, the chatbot expects to find the training data in a specific location. Therefore, the web crawler has to store the data in this exact location. To ensure changes would not break the current functionality, unit tests were implemented with the Python library PyTest. 
+
+The first set of unit tests written was for testing the command line interface. Many modifications and updates were made to the web crawler during the development process. This always resulted in problems with the command line interface functionality as most of the commands modify the output of the crawler. The unit tests for the command line interface tests each one of the commands in order.
+
+The second set of tests was for the chatbot functionality. These tests use PyTest fixtures which set up the necessary conditions before the tests are executed and delete any files or data left after they are run. These tests ensure the output produced by the chatbot is correct. 
+
+The last set of unit tests implemented was for the storage adapter used. 
+
+\subsubsection{Code Coverage}
+The PyTest library supports extensions. One such extension is pytest-cov which generates code coverage reports. Code coverage is a metric used to specify how many lines of code are executed when unit tests are run. For example, a code coverage of 100\% means that all of the code in the project is tested. Therefore, the higher the code coverage, the better. 
+
+The pytest-cov coverage reports show detailed information about each file in the program that is tested. The code coverage for each file is shown alongside the missed lines of code. At the end of the report, the average code coverage is shown. An example report can be seen in \cref{lst:codecov}.
+
+The aim for this project was to achieve a code coverage of at least 80\%, which was accomplished. Since a lot of libraries were used, it was impossible and infeasible to test all of the code in the project. It was assumed the creators of libraries have tested their code thoroughly. What is more, most libraries provide their own tests which prove that the code works.
+
+\begin{minipage}{\linewidth}
+    \begin{lstlisting}[caption={\captionstyle{A code coverage report produced with pytest-cov.}}, label={lst:codecov}]
+    Name                   Stmts   Miss  Cover
+    ------------------------------------------
+    chatbot/__init__.py       49     24    51%
+    chatbot/bot.py            86      9    90%
+    chatbot/config.py          3      0   100%
+    chatbot/constants.py      22      0   100%
+    chatbot/crawler.py        80      6    92%
+    chatbot/logic.py          69     13    81%
+    chatbot/models.py         29      1    97%
+    chatbot/run_it.py          2      0   100%
+    chatbot/storage.py       199     51    74%
+    ------------------------------------------
+    TOTAL                    539    104    81%    
+    \end{lstlisting}
+\end{minipage}
+
+\subsection{Continuous Integration \& Deployment}
+\subsubsection{Continuous Integration}
+A Continuous Integration service could be used to automatically execute the unit tests to no issues have occured. Changes were made to the project daily, however running the tests after each change was time consuming. Using Continuous Integration meant that every time a commit was pushed to the GitHub repository, the tests would be run automatically, and any issues would be found quickly. Furthermore, since branches were used, the tests could be run after merging changes into the main branch. This allowed for the discovery of integration problems.
+
+The Continuous Integration service used was Travis CI due to personal preference and previous experience. It is used for continuous testing and delivery of projects hosted on GitHub. To set it up, the GitHub account which owns the project repository was linked to Travis CI and access was given to it to read the repository. Travis CI can be configured by adding a “.travis.yml” configuration file in the root directory of the repository. The file is written in the YAML format. Firstly, the operating system used to compile the project is specified. In this case \texttt{Ubuntu 16.04 (Xenial Xerus)} is used. Additionally, the language of the program is specified, i.e. Python. The versions of the language can be specified next. In this case, the project is tested with Python 3.6 and 3.7 which are the currently latest versions. Travis CI also supports the following steps:
+\begin{itemize}
+    \item \texttt{install} – this step is executed before the testing happens. It is used to install any packages that are not installed on Ubuntu by default. In this case, there are no packages that should be installed, however the libraries used in the project are downloaded. Using the package manager, pip, all libraries are downloaded.
+    \item \texttt{before\_script} – this step occurs before the test script is executed. It is used to set the environment variables Flask expects. 
+    \item \texttt{script} – this step executes the command which runs the unit tests. In this case, it is the \texttt{pytest} command. No other setup is required as pytest is able to discover unit tests without any additional configuration. However, since code coverage reports can be generated, the optional parameter \texttt{--cov} is added so that a coverage report is created.
+    \item \texttt{after\_success} – this step is only executed after the tests are completed if they have completed successfully. The coverage report generated in the previous step is uploaded to codecov.io. It can then be inspected in detail. Codecov.io provides in-depth reports and charts of code coverage. Each file in the repository can be seen and it is shown whether each line is tested. This is useful for finding possible problematic areas which are not tested. 
+    \item \texttt{cache} – this option specifies dependencies or folders which do not change often. They can be stored, instead of being downloaded every time the build process is run. In this case, the pip dependencies can be cached which speeds up the testing process as the libraries do not have to be downloaded every time.
+\end{itemize}
+
+\subsubsection{Continuous Deployment}
+Since the website was hosted on Python Anywhere and the master branch of the GitHub repository contained the release version of the code, Continuous Deployment could be implemented. This was done for faster deployment every time code was added to the master branch. This had to be implemented manually since neither Python Anywhere nor Travis CI had any methods of deploying Flask websites. 
+
+The first step was to create an end point in the website. It was created at “/webhook”. It’s purpose was to receive requests from GitHub. GitHub has a feature called “webhooks”. It allows its users to send a request to any end point every time a specific event occurs in the repository. For example, it can be configured to send a request when there has been a commit. This is exactly what it was used for. Every time there are new changes in the master branch, the webhook send a request to the live website’s “/webhook” end point. The website is configured to inspect the request body when it receives a request. It is checked whether the event that occurred is a commit and whether the commit was made to the master branch. If this is the case, changes from the repository can be pulled directly. This was achieved with the Python library GitPython. Unfortunately, when changes are made to the website, Python Anywhere requires the site owner to reload the website. This has to be done manually by going to the site settings and pressing a \enquote{reload} button. Python Anywhere has an API which provides an end point for reloading a website remotely, however, this cannot be done from the same program that runs the server as the request times out due to the server going offline for reloading. 
+
+\subsection{Development Tools}
+Used PyCharm IDE, virtual environments, pip, terminals, etc...
+
 \subsection{Application}
 Early in the development process it became clear that the application should consist of two main parts: the back-end and the front-end. The back-end program processes the user input and generates suitable output. The front-end is the program the user interacts with. It allows them to send a message to the chatbot and receive an answer.
 
 \subsection{Back-end}
 The back-end program consists of a web crawler and the chatbot program. The web crawler is used to collect training data from Stack Overflow, while the chatbot programm processes the user input to generate a suitable response to their question.
 
-\subsubsection{Web crawler}
-Firstly, before creating the back-end program, it was necessary to collect training data for the chatbot. This could be achieved in many different ways, however the decision to scrape \footnote{Web scraping - a technique for extracting data from a website.} the website Stack Overflow was ultimately made. Stack Overflow is one of the most popular websites where programmers can ask questions about numerous programming languages and technologies. Furthermore, there is a voting system which sorts the answers by number of votes. Additionally, the person who asks a question is able to mark a specific answer as the "accepted answer". This meant that when collecting data, the answers to each question could be sorted by number of votes, and the "accepted answer" could be used as the default answer. Unfortunately, some questions have no accepted answer or no answers at all. Despite that, Stack Overflow has a wealth of information and proved to be a good source.
+\subsubsection{Web Crawler}\label{subsub:crawler}
+Firstly, before creating the back-end program, it was necessary to collect training data for the chatbot. This could be achieved in many different ways, however the decision to scrape \footnotemark[1] the website Stack Overflow was ultimately made. Stack Overflow is one of the most popular websites where programmers can ask questions about numerous programming languages and technologies. Furthermore, there is a voting system which sorts the answers by number of votes. Additionally, the person who asks a question is able to mark a specific answer as the \enquote{accepted answer}. This meant that when collecting data, the answers to each question could be sorted by number of votes, and the \enquote{accepted answer} could be used as the default answer. Unfortunately, some questions have no accepted answer or no answers at all. Despite that, Stack Overflow has a wealth of information and proved to be a good source.
+
+\fancyfootnotetext{1}{Web scraping - a technique for extracting data from a website.}
 
 Another option for data collection was the numerous websites which provide beginner information about a specific language. However, as described below, supporting web crawling of different websites could be a difficult task due to the different structure of each website. Furthermore, these websites had a limited amount of information and some of them had outdated or low-quality information.
 
@@ -747,7 +907,7 @@ The last argument is the \texttt{database\_uri}. An SQLite database is used and 
 \subsection{Front-end}
 The front-end was implemented in Python with the Flask module.
 
-\subsubsection{Project structure}
+\subsubsection{Project Structure}
 As suggested in the Flask documentation \cite{Flask:online}, the project was structured in the following way: 
 \begin{Verbatim}[frame=single]
 Chatbot/
@@ -776,7 +936,7 @@ Chatbot/
 
 The root folder of the project is the \texttt{Chatbot/} directory. It contains the \texttt{chatbot/} directory in which the Python code for the back-end program is stored. The \texttt{static/} directory contains the static files used in the website - the CSS styles and the javascript code as well as any images that might be used. The \texttt{tests/} directory contains the unit tests for the application. Lastly, \texttt{venv} contains the Python \textit{virtual environment} used for the project. Structuring the project this way ensures that the different .... are separated and organised.
 
-\subsubsection{Application setup}
+\subsubsection{Application Setup}
 The Flask documentation recommends organising the code in modules. For this reason, the \texttt{\_\_init\_\_.py} file is placed in the \texttt{chatbot/} directory. This tells the Python interpreter that chatbot is a module which can be imported in Python files. Additionally, the \texttt{\_\_init\_\_.py} file defines a method which initialises an instance of the \texttt{Flask} class. This method is known as the \textit{Application Factory} \cite{Flask:online}. The initialisation of the Flask app is achieved as follows:
 
 \begin{enumerate}
@@ -793,7 +953,7 @@ def home():
     return render_template("chatbot.html", title="Chatbot")
 \end{lstlisting}
 
-\myparagraph{Website design}
+\myparagraph{Website Design}
 The website consists of a single page which resembles a text messaging application. The main goal was to create a clean and simple interface which is easy to use and feels familiar. Messaging apps such as Facebook Messenger and WhatsApp were used as reference. The website interface is shown in \cref{fig:site-interface}.
 
 \begin{figure}[!htb]%
@@ -819,7 +979,7 @@ Although Bootstrap does not require any specific setup or configuration, the Fla
 
 The chatbot page consists of three rows with one column per row. Custom CSS was written so that the different elements have appropriate size. The title is positioned at the top of the page and the text input box and the button are positioned at the bottom. The chatbox is in the center of the page and it occupies all the remaining free space. By default, Bootstrap uses rows with the same height. However, custom css was created to position the elements more precisely and to change their height. To ensure the responsive design still worked, the appropriate CSS units were used. Instead of giving elements a specific height, e.g. "20 pixels", relative units such as \texttt{\%} and \texttt{vh} (viewport height) were used.
 
-\subsection{Back-end and front-end communication}
+\subsection{Back-end and Front-end Communication}
 The communication between the front-end and the back-end is required as the user input has to be sent to the back-end program for processing. When the input is processed, the resulting output has to be sent back to the front-end. This communication was achieved with the Javascript language. 
 
 JavaScript is a client-side programming language which runs inside web browsers. It can be used to dynamically change a website's content, store information and handle requests and responses. The JQuery library was used as it provides wrappers around JavaScript functions which allow for writing of less code to achieve the same functionality.
@@ -871,8 +1031,8 @@ const messageHtml = messageTmpl.render(data);
 
 JsRender is also used for the loading animation and the error messages shown to the user when they haven’t given the program any input. The loading animation is pre-rendered as it doesn’t have any dynamic content. The error message template utilises a Bootstrap alert which provides a coloured box which can be dismisses by clicking an “X” button in its top right corner. 
 
-\subsection{Extra features}
-\subsubsection{Command line interface}
+\subsection{Extra Features}
+\subsubsection{Command line Interface}
 During development and testing, certain repetitive tasks had to be done manually. For instance, to collect training data, the “crawler” Python script had to be run every time. Since it is a seprate program, it had to be run manually. If any of its parameters were changed, e.g. how many pages are crawled or how many threads are used, the code had to be modified directly. For this reason, a command line interface was implemented so that a central place exists from where common actions could be run. 
 
 Flask provides an interface for implementing custom commands. All Flask commands start with “flask” follow by the command name. For example, the command to run the Flask server, which can be executed from a terminal, is “flask run”. Optional parameters can be set using the well-known parameter switches. For example, running the Flask server with multiple threads can be achieved with the command “flask run --with-threads”. Flask implements this functionality with the Python module Click. The code for creating a custom command can be seen in Listing X. [Explanation…]
@@ -898,7 +1058,7 @@ The custom commands implemented are:
 
 These commands were implemented for easier setup and usage of application.
 
-\subsubsection{Alternate responses}
+\subsubsection{Alternate Responses}
 Stack Overflow threads usually contain more than one answer to a question. Furthermore, in programming, usually there are multiple ways to achieve something depending on the situation. This is why the web crawler by default collects more than one answer to a question. However, when the user asks the chatbot a question, by default the back-end application selects the accepted answer on Stack Overflow. There is no way to access the other collected data. For this reason, an extra feature was implemented to allow the user to request an alternate response in the event that the original response wasn’t satisfactory.
 
 The initial idea for the feature was to add a button to each response. If the button is clicked, another response would be given to the user. However, it was decided that a simpler implementation might be better. Since the user can “talk” to the chatbot, simply asking it to provide an “alternate response” would make the experience of communicating with the chatbot more authentic. The user would feel like they are communication with another person. For this reason, it was decided that when the user types “alternate response” in the chat, the chatbot would return another response from the list of possible responses.
@@ -914,7 +1074,7 @@ During the testing process of the application, it was discovered that the first 
 
 The first step to implementing this feature was adding a voting or rating functionality to the front-end. The initial idea was to implement a star-rating system where 5 stars would indicate that the answer was very good, and 1 star would indicate that it was not an appropriate response to the question. However, a simpler to use system was implemented in the end. Each time the user receives a response from the chatbot, the bottom part of the message box would contain a question to the user: “Was this answer helpful?”. The user would then be able to click on a “Yes” or “No” button to give feedback on the appropriateness of the answer. 
 
-Implementing the feedback feature in the front-end side of the program required the creation of another JsRender template. The template contains the HTML code for the question and the two buttons. The text and the buttons do not need to change dynamically; however, they need to be uniquely identifiable. This is necessary as when one of the buttons is pressed, the question it refers to has to be identified. To implement this functionality, the feedback panel was placed inside a Bootstrap \texttt{row}. Each of these rows was given a unique \texttt{id} in the format \texttt{row-id-<ID>}, where \texttt{<ID>} refers to a unique integer. The code used to create the template can be seen in \cref{feedbacktmpl}. 
+Implementing the feedback feature in the front-end side of the program required the creation of another JsRender template. The template contains the HTML code for the question and the two buttons. The text and the buttons do not need to change dynamically; however, they need to be uniquely identifiable. This is necessary as when one of the buttons is pressed, the question it refers to has to be identified. To implement this functionality, the feedback panel was placed inside a Bootstrap \texttt{row}. Each of these rows was given a unique \texttt{id} in the format \texttt{row-id-<ID>}, where \texttt{<ID>} refers to a unique integer. The code used to create the template can be seen in \cref{lst:feedbacktmpl}. 
 
 \begin{lstlisting}[language=html, caption={\captionstyle{The JsRender template used to generate HTML code for a feedback panel.}}, label={lst:feedbacktmpl}]
     <script id="feedbackTmpl" type="text/x-jsrender">
@@ -931,39 +1091,8 @@ When \texttt{getFeedback()} is called, it process the data passed to it. The ID 
 When the server receives a request of type “feedback”, it extracts all the data from it. The data is then passed the \texttt{bot.py} script. A function checks whether the feedback is “yes” or “no”. If the value is “yes”, then the function in the storage adapter \texttt{update\_rating()} is called with a parameter of 1, if it’s “no”, then -1 is passed to the same function. In order to find the response in the database, the text of the response is passed to the same function. The database is then searched using an SQL query created with the SQLalchemy library. The query selects a statement from the “statements” table the text of which is the same as the text passed to the function. The rating value of the selected statement can then be updated. Lastly, the changes are committed to the database.
 
 [describe the message shown to the user when they click the feedback buttons here]
-\subsection{Testing}
-Since the application consisted of many different components communicating with each other, problems were often encountered during the development process. For example, the chatbot expects to find the training data in a specific location. Therefore, the web crawler has to store the data in this exact location. To ensure changes would not break the current functionality, unit tests were implemented with the Python library PyTest. 
 
-The first set of unit tests written was for testing the command line interface. Many modifications and updates were made to the web crawler during the development process. This always resulted in problems with the command line interface functionality as most of the commands modify the output of the crawler. The unit tests for the command line interface tests each one of the commands in order.
-
-The second set of tests was for the chatbot functionality. These tests use PyTest fixtures which set up the necessary conditions before the tests are executed and delete any files or data left after they are run. These tests ensure the output produced by the chatbot is correct. 
-
-The last set of unit tests implemented was for the storage adapter used. 
-
-\subsubsection{Code Coverage}
-The PyTest library supports extensions. One such extension is pytest-cov which generates code coverage reports. Code coverage is a metric used to specify how many lines of code are executed when unit tests are run. For example, a code coverage of 100\% means that all of the code in the project is tested. Therefore, the higher the code coverage, the better. 
-
-The pytest-cov coverage reports show detailed information about each file in the program that is tested. The code coverage for each file is shown alongside the missed lines of code. At the end of the report, the average code coverage is shown. An example report can be seen in \cref{lst:codecov}.
-
-\begin{lstlisting}[caption={\captionstyle{A code coverage report produced with pytest-cov.}}, label={lst:codecov}]
-Name                   Stmts   Miss  Cover
-------------------------------------------
-chatbot/__init__.py       49     24    51%
-chatbot/bot.py            86      9    90%
-chatbot/config.py          3      0   100%
-chatbot/constants.py      22      0   100%
-chatbot/crawler.py        80      6    92%
-chatbot/logic.py          69     13    81%
-chatbot/models.py         29      1    97%
-chatbot/run_it.py          2      0   100%
-chatbot/storage.py       199     51    74%
-------------------------------------------
-TOTAL                    539    104    81%    
-\end{lstlisting}
-
-The aim for this project was to achieve a code coverage of at least 80\%, which was accomplished. Since a lot of libraries were used, it was impossible and infeasible to test all of the code in the project. It was assumed the creators of libraries have tested their code thoroughly. What is more, most libraries provide their own tests which prove that the code works.
-
-\subsection{Web hosting}
+\subsection{Web Hosting}
 Since the project implements a website, web hosting options were considered so that the website can be accessed and tested by users. Traditional web hosting options could not be used as they offer PHP servers with MySQL databases. Instead, web hosting services which support Python and Flask were considered. The main options were:
 \begin{itemize}
 	\item Amazon AWS 
@@ -973,35 +1102,143 @@ Since the project implements a website, web hosting options were considered so t
 
 All these services are viable options, however both AWS and Heroku have a limit of requests for their free tier. If the limit is exceeded, payment is taken from the website owner’s account. Python Anywhere, on the other hand, is free. Furthermore, it is the easiest to set up as it supports Flask websites by default.
 
-\subsection{Continuous Integration \& Deployment}
-\subsubsection{Continuous Integration}
-A Continuous Integration service could be used to automatically execute the unit tests to no issues have occured. Changes were made to the project daily, however running the tests after each change was time consuming. Using Continuous Integration meant that every time a commit was pushed to the GitHub repository, the tests would be run automatically, and any issues would be found quickly. Furthermore, since branches were used, the tests could be run after merging changes into the main branch. This allowed for the discovery of integration problems.
-
-The Continuous Integration service used was Travis CI due to personal preference and previous experience. It is used for continuous testing and delivery of projects hosted on GitHub. To set it up, the GitHub account which owns the project repository was linked to Travis CI and access was given to it to read the repository. Travis CI can be configured by adding a “.travis.yml” configuration file in the root directory of the repository. The file is written in the YAML format. Firstly, the operating system used to compile the project is specified. In this case \texttt{Ubuntu 16.04 (Xenial Xerus)} is used. Additionally, the language of the program is specified, i.e. Python. The versions of the language can be specified next. In this case, the project is tested with Python 3.6 and 3.7 which are the currently latest versions. Travis CI also supports the following steps:
-\begin{itemize}
-    \item \texttt{install} – this step is executed before the testing happens. It is used to install any packages that are not installed on Ubuntu by default. In this case, there are no packages that should be installed, however the libraries used in the project are downloaded. Using the package manager, pip, all libraries are downloaded.
-    \item \texttt{before\_script} – this step occurs before the test script is executed. It is used to set the environment variables Flask expects. 
-    \item \texttt{script} – this step executes the command which runs the unit tests. In this case, it is the \texttt{pytest} command. No other setup is required as pytest is able to discover unit tests without any additional configuration. However, since code coverage reports can be generated, the optional parameter \texttt{--cov} is added so that a coverage report is created.
-    \item \texttt{after\_success} – this step is only executed after the tests are completed if they have completed successfully. The coverage report generated in the previous step is uploaded to codecov.io. It can then be inspected in detail. Codecov.io provides in-depth reports and charts of code coverage. Each file in the repository can be seen and it is shown whether each line is tested. This is useful for finding possible problematic areas which are not tested. 
-    \item \texttt{cache} – this option specifies dependencies or folders which do not change often. They can be stored, instead of being downloaded every time the build process is run. In this case, the pip dependencies can be cached which speeds up the testing process as the libraries do not have to be downloaded every time.
-\end{itemize}
-
-\subsubsection{Continuous Deployment}
-Since the website was hosted on Python Anywhere and the master branch of the GitHub repository contained the release version of the code, Continuous Deployment could be implemented. This was done for faster deployment every time code was added to the master branch. This had to be implemented manually since neither Python Anywhere nor Travis CI had any methods of deploying Flask websites. 
-
-The first step was to create an end point in the website. It was created at “/webhook”. It’s purpose was to receive requests from GitHub. GitHub has a feature called “webhooks”. It allows its users to send a request to any end point every time a specific event occurs in the repository. For example, it can be configured to send a request when there has been a commit. This is exactly what it was used for. Every time there are new changes in the master branch, the webhook send a request to the live website’s “/webhook” end point. The website is configured to inspect the request body when it receives a request. It is checked whether the event that occurred is a commit and whether the commit was made to the master branch. If this is the case, changes from the repository can be pulled directly. This was achieved with the Python library GitPython. Unfortunately, when changes are made to the website, Python Anywhere requires the site owner to reload the website. This has to be done manually by going to the site settings and pressing a "reload" button. Python Anywhere has an API which provides an end point for reloading a website remotely, however, this cannot be done from the same program that runs the server as the request times out due to the server going offline for reloading. 
-
-\newpage
-\section{Results and discussions}
-
 \newpage
 \section{Evaluation}
+The aim of this project was to investigate whether chatbots can be utilised in education. To achieve this goal, a chatbot was created. The requirements set before the development started were as follows:
+\begin{itemize}
+    \item The application should produce coherent output when given user input.
+    \item The application should utilise Natural Language Processing techniques to “understand” user input.
+    \item The application should utilise Natural Language Processing to compare user input to known data.
+    \item The application should have a user-friendly user interface.
+    \item The application should be able to learn and improve through its interactions with its users.
+    \item The application should be easily trainable with additional data whenever necessary.
+    \item The application should be accessible from both mobile and desktop computing devices.
+    \item Etc?
+\end{itemize}
+
+This section will evaluate the implemented application which is described in \cref{sec:impl}. Two approaches will be taken: it will be compared to similar applications and a group of users will test it and provide feedback.
+
+\subsection{Preparation}\label{subsec:prep}
+To prepare the application for user testing, firstly data was collected. The crawler program described in \cref{subsub:crawler} was used with the parameters shown in \cref{tbl:crawlerparams}. As it can be seen, 4 threads were used to speed up the data collection process. Each thread was assigned the task of crawling 10 pages. Each page contained 15 questions. The resulting data contained information about 600 questions. For each question, the 3 top answers were collected (where applicable, some questions may have less answers). The resulting data contained a total of 1800 answers.
+
+\begin{table}[!htb]
+    \centering
+    \renewcommand\arraystretch{1.6}
+    \caption{\captionstyle{Parameters used for the web crawler when collecting data in preparation for testing.}}
+    \label{tbl:crawlerparams}
+    \begin{tabularx}{\textwidth}{XY}
+        \toprule
+        \textbf{Parameter} & \textbf{Value}  \\
+        \midrule
+        Number of threads & 4 \\
+        Number of pages crawled by each thread & 10 \\
+        Number of questions per page & 15\\
+        Number of answers per question & 3 \\
+        \hline
+        Total questions collected & 600 \\
+        Total answers collected & 1800 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}%
+
+Even though it would have been beneficial to collect more data, Stack Overflow tend to limit traffic. If a user sends too many requests to their servers, they block any other incoming traffic for a certain amount of time. This proved to be a limitation in the data collection stage of the evaluation process. For this reason, the collected data was deemed satisfactory for testing purposes.
+
+Secondly, the chatbot was trained using this data. It was also trained with the data provided by the Python module "chatterbot-corpus". It provides some common conversational data. In this case the data labelled "greetings" was used so that the chatbot can greet the user when input similar to "hi" and "hello" is provided. Chatterbot-corpus provides several different types of data, for example there is a "jokes" dataset, a "trivia" dataset, etc. However, these were not used in this example as the purpose of this chatbot is to answer specific programming questions. However, users tend to expect a chatbot to be able to respond to at least a greeting.
+
+\subsection{Comparison with Cleverbot}
+Cleverbot is one of the most popular chatbots which currently exist. It was developed by Rollo Carpenter as a successor to the Jabberwacky chatbot. It was initially created in 1988 and was made public in 2006. It does not use machine learning to improve itself. Instead, a pattern matching technique is used to compare user input to stored data from past conversations “fuzzily”. In this regard, it can be said that it “learns” from its past conversations. Cleverbot now uses over 279 million interactions, about 3-4\% of the data it has already accumulated. Since it can use so much data when generating responses, it is expected that it will perform better than the chatbot developed for this project. Its data is much less in comparison due to lack of resources, time and users...
+
+
+\myparagraph{Input correction}
+Whenever Cleverbot is given user input, it corrects the punctuation and the word case if necessary. For instance, input such as “hi how are you” is converted to “Hi how are you.”. Commas and other punctuation marks will not be automatically inserted. It is also assumed that a full-stop should be added to the end of the sentence if it’s missing. The reason for this functionality is probably to allow Cleverbot to match the input to the data it uses to generate a response. While this approach might be beneficial, it does not work for the application developed for this project. A similar feature was added by adding the JavaScript library “Typopo”. It can check text for common mistakes such as extra whitespace, extra dashes, wrong word case, etc. and correct it. The result, however, was not satisfactory. In programming, a lot of combinations of symbols are used which might be considered wrong by a spell-checking program. For instance, the question “what is the --> operator used for” is corrected automatically to “What is the -> operator used for”. The library matches the input to known patterns, in this case the two dashes, and it removes one of them. This, however, changes the question asked by the user. If a “->” operator existed, a response related to it will be returned. In the end, this input correction functionality was not implemented. Furthermore, it is not required since punctuation and letter case do not affect the generated response.
+
+\myparagraph{Context}
+Cleverbot can have longer conversations with a user. For example, consider the following conversation:
+
+\begin{verbatim}
+User: Tell me a joke.
+Cleverbot: Knock Knock.
+User: Who is there?
+Cleverbot: Broken pencil.
+User: Broken pencil who?
+Cleverbot: Never mind it's pointless.
+\end{verbatim}
+
+The user asks of a joke and Cleverbot replies with the beginning of a “knock, knock” joke. The user then asks the bot for the rest of the joke twice and Cleverbot responds accordingly. To ensure that this is not random output of a statement, the joke was found online. Another version of the joke is as follows:
+
+\begin{verbatim}
+Knock, knock!
+Who’s there?
+Broken pencil.
+Broken pencil who?
+Forget it - this joke is pointless. 
+\end{verbatim}
+
+Through this interaction, Cleverbot appears to understand the context of the conversation. It is able to continue talking about a previously set topic. However, it is assumed that this possible due do the large amount of data Cleverbot has access to. A similar conversation with another user probably took place in the past and the user provided similar input to the bot’s statements. It is confirmed that Cleverbot has no knowledge of context by continuing the conversation. The conversation can be seen below:
+
+\begin{verbatim}
+Cleverbot: Never mind it's pointless.
+User: Why is it pointless?
+Cleverbot: Because I already know that.
+User: What do you know?
+Cleverbot: You're not too clever.
+\end{verbatim}
+
+In this case, the chatbot does not know how to continue the conversation and a response is selected from another conversation in its database.
+
+On the other hand, the application developed for this project neither has any knowledge of context nor tries to imitate it. For instance, when asked the question “what are move semantics?”, the bot replies successfully. However, if the user tried to continue the conversation by asking “when to use them?” to bet is unable to generate a response. It should be noted that if it had data about a response to a question similar to “when to use them?”, the response to that question will be given to the user. Therefore, the chatbot is unable keep track of previous statements in the conversation. Such a feature would be extremely beneficial; however, this is a currently investigated topic which is still under development. A similar approach to Cleverbot could be taken where whole conversations are stored. However, Cleverbot is able to learn from conversations with its users since he does not have a specific domain of knowledge. On the other hand, this chatbot’s purpose is to teach students by giving them answers it already knows. For this reason, it would be unable to teach it based on user input. Additionally, because of this realisation, the chatbot was made “read-only” which does not allow it to store conversations with its users.
+
+\myparagraph{Paraphrased input}
+Cleverbot can answer the same question worded differently. For example, if the user asks “what is your favourite colour?”, Cleverbot replies “Don’t have one.”. If the user then asks “what colour do you like the most?”, the bot replies with “Blue.”. Even though the answers to both questions do not match, they are coherent and are linked to the question. However, this is probably possible due to the amount of data Cleverbot has access to. Nonetheless, Cleverbot can process paraphrased user input. 
+
+On the other hand, the chatbot developed for this project cannot always deal with paraphrased user input. For example, when asked “how are you?”, it replies with “Very well, thanks”. If the question is changed to “how is it going?”, it responds with “Good.”. This is possible because the chatbot database contains responses for both asked questions. In reality, the chatbot is not necessarily able to realise both questions have very similar meaning. Furthermore, when asked “what is the difference between a pointer and a reference?”, the chatbot generates a correct answer. Analysing the training data shows that the statement the chatbot “knows” is actually “What are the differences between a pointer variable and a reference variable in C++?”. Therefore, it is able to process partially paraphrased input. However, it should be noted that most of the words which convey the meaning of the sentence are present in the paraphrased question. Thus, it should not be surprising that the results are good. Unfortunately, when the question is paraphrased drastically, for instance “references vs. pointers”, the chatbot replies with a known reply to the statement “When to use references vs. pointers”. While reply might be useful for the user, their intention might have been to find out what the differences between the two are, not when to use each one.
+
+Unfortunately, no easy solution to this problem exists. Making the bot “smarter” would require using a different AI technique such as Neural Networks or ???. Furthermore, using a off-the-shelf library would be impossible. The system would have to be written for this specific purpose. However, a suggestion for improvement of this chatbot is given: after the training data is collected, another program could read each question, and generate paraphrased questions from it. The answers of the original questions can then also be associated with the paraphrased versions. This would be a naïve solution, however it might produce satisfactory results for the purposes of this project.
+
+
+\subsection{User Testing}
+A group of users was asked to provide feedback for the application twice. The first time was after completing the initial prototype of the website described in \cref{sec:impl}. Five users were asked to test the application and provide general feedback. The aim was to find out whether the application was user-friendly and worked as expected. The second testing session was after some changes were implemented based on the feedback from the first session. A larger number of users were asked to participate.
+
+\subsubsection{First Testing Session}
+The first testing session took place after an initial prototype of the application was implemented. All features described in \cref{sec:impl} were implemented and able to be tested. Five users participated in the session. All of them were Computing students in their final year at university. All of them had advanced overall knowledge of programming and at least intermediate knowledge of C++. The aim of this session was to identify user interface problems so that the application can be made more user-friendly. Additionally, another objective was to find bugs in back-end or the front-end. The users were not asked any specific questions and were able to provide feedback in the form of notes without any specific format.
+
+\cref{app:sesh1} illustrates the result of the first testing session. The column named "Feedback" lists the points the testers made about what they thought should be changed. The column "Changes made" describes what changes were implemented based on the user feedback. It should be noted that the results table only shows the negative feedback received.
+
+All testers agreed that the style of hyperlinks was not satisfactory. One of the testers made the point that it looked like a "grammatical or spelling error which is underlined by a spell-checking program". This is caused by the initial style that was implemented: the text colour of hyperlinks was white (the same as regular text), and they were underlined with a red line (2 pixels thick). Changing the colour to yellow and green was tested, however, the same tester noted that it still looked like a "grammatical error" due to these colours being associated with errors (red), warnings (yellow) or correctness (green). Another tester suggested using a different colour for the hyperlink text and underlining it with a line which is of the same colour. In the end, this idea was implemented, and the colour of hyperlink text and underlining was changed to light blue. As a result, the testers agreed that it looked better and it was clear which words were a hyperlink. 
+
+Another problem caused by the style of hyperlinks was that the "help" link in the initial chatbot message was not visible. The testers thought it was emphasized but did not realise they can click it. Additionally, they did not realise they can use the "help" command by typing "help" as a message in the chat. This was caused by their inability to access the help message which could only be seen by clicking on the "help" link. To rectify this problem, an additional "help" button was added at the top of the page. Furthermore, the initial chatbot message was changed to specifically tell the user they can either type "help" in the chat, click the "help" link or click the button at the top of the page. As a result, the testers agreed that this is more user-friendly.
+
+One tester made the point that typing the "alternate response" command can become tedious when it is done repeatedly. They suggested adding a button. The button was added to the bottom of every bot message (in the panel for feedback). After testing the changes, the testers agreed that while this solution worked, the button was only accessible if the user hasn't clicked on the feedback buttons. If either one of them is clicked, the contents of the panel change. A suggestion to add the button to the message shown when the user clicks the "no" feedback button was made. Since clicking the "no" button means that the user was not satisfied with the response, it would make sense to add the "alternate response" button to the new message shown. This change was also implemented, and the testers agreed that the result was satisfactory.
+
+One of the users who tested the website on a desktop computer with a large screen noted that the webpage fills their entire screen. While this is to be expected as the responsive design of the website ensures that the content fits the screen, this caused a problem. The tester said that this makes it very difficult to read long answers as they look like a “wall of text”. After researching what other websites with a lot of text do to fix this problem, it was realised that very rarely websites use the full width of the screen. Usually, columns on the left and right are used for other content. The text takes up about 60\% of the width of the screen. Additionally, while online chatrooms often used the full width of the browser window, the text messages rarely take up that much space. As a result, the width of the Bootstrap Container was reduced. This change only affected devices with big screens. No changes were made for mobile devices. The testers agreed that it was easier to read longer responses.
+
+Other smaller changes made based on the feedback were:
+\begin{itemize}
+    \item The help message was changed to more clearly indicate what features the user has access to and how to use them.
+    \item Another webpage (\enquote{about this project}) was added to explain the purpose of the website and to give credit to Stack Overflow for the data collected from there.
+    \item A navigation bar (menu) was added to the top of the page with a \enquote{Home} and \enquote{About} buttons which redirect to the respective pages. The \enquote{Help} button was also placed in the menu. Clicking on it, simply writes \enquote{help} as a question on behalf of the user. The testers agreed they liked this behaviour since it teaches the user how to use text commands. For this reason, the functionality was kept.
+    \item One of the testers discovered that while waiting for a response, more questions can be asked which results in the inability of the bot to respond. To fix this problem, the \enquote{Send} button was disabled while waiting for a response as well as pressing the \enquote{Enter} keyboard key. 
+\end{itemize}
+
+Lastly, the testers agreed that the bot was able to respond to about half of their questions. However, this was to be expected since the training data used was of limited quantity.
+
+
+\subsubsection{Second Testing Session}
+
+
+\begin{figure}[!htb]%
+    \centering
+    \includegraphics[width=0.9\columnwidth]{prog_knowledge}%
+    \caption{\captionstyle{Bar chart showing the overall programming knowledge level of the participants in the survey.}}%
+    \label{fig:progknowl}%
+\end{figure}
+
 
 \newpage
 \section{Conclusions}
 
 \newpage
-\section{Future work}
+\section{Future Work}
 
 \newpage
 \bibliographystyle{apalike}
@@ -1010,6 +1247,7 @@ The first step was to create an end point in the website. It was created at “/
 %you can crate this on a extra tex document just like the title or any other part of the document.
 \newpage
 \begin{appendices}
+\crefalias{section}{appsec}
 \section{Project Overview}
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{IPO-0.png} % fit images to page
 \newpage
@@ -1042,6 +1280,67 @@ The first step was to create an end point in the website. It was created at “/
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{interim-1.png}
 \newpage
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{interim-2.png}
+
+\newpage
+\section{Results from First Testing Session}\label{app:sesh1}
+\begin{table}[!htb]
+    \centering
+    \renewcommand\arraystretch{1.6}
+    \caption{\captionstyle{Results from the first testing session.}}
+    \label{tbl:sesh1}
+    \begin{tabularx}{\textwidth}{XX}
+    \toprule
+    \textbf{Feedback} & \textbf{Changes made}  \\
+    \midrule
+    Links are not identifiable easily. & The colour of all links was changed to stand out from regular text. The style was also  changed so that they are underlined. \\
+    The \enquote{help} link is not visible. & The style for this link was also changed.  Additionally, another help button was added to a menu at the top of the webpage. \\
+    It would be more user-friendly to add an "alternate response" button. & An alternate response button was added to the bottom of each bot message.\\
+    When the user gives negative feedback, they should be presented with an alternate  response button. & An alternate response button was added to the template for the "no" feedback button. \\
+    The webpage fills the screen and  answers which are too long look like a wall of text. It is difficult to read. & The initial width of the chat box was decreased. \\
+    The help message should describe the features of the application more clearly. & The help message was edited. \\
+    There should be a description of the website for users who accidentally found it. & Another webpage was added which describes the purpose of the website.\\
+    \bottomrule
+    \end{tabularx}
+\end{table}%
+
+\newpage
+\section{Survey Questions}\label{app:surveyqs}
+\renewcommand\arraystretch{1.8}
+\begin{longtabu} to \textwidth {cX[1]X[1]}
+    \caption{\captionstyle{The questions each tester was asked in the survey and their possible answers.}} \label{tbl:sureyqs} \\
+    \toprule
+    \multicolumn{1}{l}{\textbf{ID}} & \multicolumn{1}{l}{\textbf{Question}} & \multicolumn{1}{l}{\textbf{Possible Answers}} \\
+    \endfirsthead
+
+    \multicolumn{3}{c}%
+    {{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+    \toprule \multicolumn{1}{l}{\textbf{ID}} & \multicolumn{1}{l}{\textbf{Question}} & \multicolumn{1}{l}{\textbf{Possible Answers}} \\ \hline
+    \endhead
+
+    \hline \multicolumn{3}{r}{{\small{Continued on next page}}} \\ \bottomrule 
+    \endfoot
+
+    \bottomrule
+    \endlastfoot
+    
+    \midrule
+    1 & What year of study are you in? & 1st/2nd/3rd/4th \\
+    2 & What is your overall programming knowledge? & Beginner/Intermediate/Advanced \\
+    3 & How often do you use search engines to search for information related to programming? & Daily/Weekly/Monthly/Less often\\
+    4 & How often do you use Stack Overflow? & Daily/Weekly/Monthly/Less often \\
+    5 & The user interface is easy to understand and use. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    6 & The user interface is visually pleasing. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    7 & I was able to understand how to use all the features of the application, i.e. asking for a \textbf{regular response}, asking for an \textbf{alternate response}, and providing \textbf{feedback} for a bot response. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    8 & I was able to use the \textbf{alternate response feature} to receive an alternate answer to a question I asked. & Scale from "Strongly Agree" to "Strongly Disagree".\\
+    9 & I was able to use the \textbf{feedback feature} to give feedback on an answer the chatbot gave me. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    10 & Appropriate error messages are shown (e.g. when there is no user input). & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    11 & The chatbot answered my question(s) quickly. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    12 & The chatbot response(s) were coherent and answered my question(s) accurately. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    13 & I am overall satisfied with the functionality of the application. & Scale from "Strongly Agree" to "Strongly Disagree" \\
+    14 & I prefer using the application on a... & Mobile Device/Desktop Device \\
+    15 & Any additional feedback? & Text input field where the user can write their additional feedback.\\
+\end{longtabu}
+
 
 \end{appendices}
 
